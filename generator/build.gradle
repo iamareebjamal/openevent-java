@@ -1,0 +1,7 @@
+apply plugin: 'kotlin'
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'com.squareup:kotlinpoet:0.7.0'
+}

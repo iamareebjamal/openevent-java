@@ -29,12 +29,12 @@ fun signup(authClient: AuthClient) {
 
 fun main(args: Array<String>) {
     val time = System.currentTimeMillis()
-    val retrofit: Retrofit = RetrofitConfig(true).createRetrofit()
+    /*val retrofit: Retrofit = RetrofitConfig(true).createRetrofit()
 
     getEvents(retrofit)
     val authClient: AuthClient = retrofit.create(AuthClient::class.java)
     // signup(authClient)
-    authenticate(authClient)
+    authenticate(authClient)*/
 
     println("Ended ${System.currentTimeMillis() - time}")
 }
