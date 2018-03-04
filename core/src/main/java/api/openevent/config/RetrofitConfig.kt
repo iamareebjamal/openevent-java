@@ -1,6 +1,7 @@
 package api.openevent.config
 
 import api.openevent.event.Event
+import api.openevent.user.MutableUser
 import api.openevent.user.User
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -16,7 +17,7 @@ import okhttp3.Interceptor
 class RetrofitConfig(private val debug: Boolean = false) {
 
     companion object {
-        private val defaultBaseUrl = "http://localhost:5000/v1/"
+        private const val defaultBaseUrl = "http://localhost:5000/v1/"
     }
 
     private val objectMapper: ObjectMapper by lazy {
@@ -39,7 +40,7 @@ class RetrofitConfig(private val debug: Boolean = false) {
     fun createRetrofit(baseUrl: String = defaultBaseUrl): Retrofit {
         return Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(JSONAPIConverterFactory(objectMapper, Event::class.java, User::class.java))
+                .addConverterFactory(JSONAPIConverterFactory(objectMapper, Event::class.java, User::class.java, MutableUser::class.java))
                 .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                 .client(client)
                 .baseUrl(baseUrl)

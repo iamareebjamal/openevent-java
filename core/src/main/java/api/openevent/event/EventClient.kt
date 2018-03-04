@@ -13,10 +13,10 @@ interface EventClient {
     fun get(@Path("id") id: Int): Single<Event>
 
     @POST("events")
-    fun post(@Body item: Event): Single<Event>
+    fun post(@Body item: MutableEvent): Single<Event>
 
     @PATCH("events/{id}")
-    fun patch(@Body item: Event): Single<Event>
+    fun patch(@Body item: MutableEvent): Single<Event>
 
     @DELETE("events/{id}")
     fun delete(@Path("id") id: Int): Completable

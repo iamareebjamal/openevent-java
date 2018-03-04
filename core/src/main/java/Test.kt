@@ -2,7 +2,12 @@ import api.openevent.auth.AuthClient
 import api.openevent.auth.Login
 import api.openevent.config.RetrofitConfig
 import api.openevent.event.EventClient
+import api.openevent.user.MutableUser
 import api.openevent.user.User
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
 import retrofit2.Retrofit
 
 fun getEvents(retrofit: Retrofit) {
@@ -19,7 +24,7 @@ fun authenticate(authClient: AuthClient) {
 }
 
 fun signup(authClient: AuthClient) {
-    val user = User()
+    val user = MutableUser("test@test.io", "pass")
     user.email = "test@test.io"
     user.password = "poo"
 
@@ -28,13 +33,13 @@ fun signup(authClient: AuthClient) {
 }
 
 fun main(args: Array<String>) {
-    val time = System.currentTimeMillis()
-    /*val retrofit: Retrofit = RetrofitConfig(true).createRetrofit()
+    /*val time = System.currentTimeMillis()
+    val retrofit: Retrofit = RetrofitConfig(true).createRetrofit()
 
     getEvents(retrofit)
     val authClient: AuthClient = retrofit.create(AuthClient::class.java)
-    // signup(authClient)
-    authenticate(authClient)*/
+    //signup(authClient)
+    authenticate(authClient)
 
-    println("Ended ${System.currentTimeMillis() - time}")
+    println("Ended ${System.currentTimeMillis() - time}")*/
 }

@@ -1,33 +1,35 @@
 package api.openevent.event
 
-import api.openevent.annotations.ReadOnly
+import api.openevent.annotations.contraints.Url
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.github.jasminb.jsonapi.IntegerIdHandler
 import com.github.jasminb.jsonapi.annotations.Id
 import com.github.jasminb.jsonapi.annotations.Type
+import javax.validation.constraints.Email
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 
 @Type("event")
 @JsonNaming(PropertyNamingStrategy.KebabCaseStrategy::class)
-data class Event(
-        @ReadOnly
-        @Id(IntegerIdHandler::class)
-        var id: Int? = null,
-        @ReadOnly var identifier: String? = null,
-        var name: String? = null,
-        var externalEventUrl: String? = null,
-        var logoUrl: String? = null,
+data class MutableEvent(
+        var name: String,
+        var startsAt: String,
+        var endsAt: String,
+        var timezone: String,
 
-        var startsAt: String? = null,
-        var endsAt: String? = null,
-        @ReadOnly var createdAt: String? = null,
-        @ReadOnly var deletedAt: String? = null,
+        @Id(IntegerIdHandler::class)
+        val id: Int? = null,
+
+        var description: String? = null,
+        var privacy: String? = "public",
+        var state: EventState? = EventState.draft,
         var schedulePublishedOn: String? = null,
 
-        // Location
-        var timezone: String? = "UTC",
+        @Url var logoUrl: String? = null,
+        @Url var originalImageUrl: String? = null,
+        @Url var externalEventUrl: String? = null,
+
         @Min(-90) @Max(90)
         var latitude: Float? = null,
         @Min(-180) @Max(180)
@@ -35,31 +37,21 @@ data class Event(
         var locationName: String? = null,
         var searchableLocationName: String? = null,
 
-        var description: String? = null,
-
-        var originalImageUrl: String? = null,
-        @ReadOnly var thumbnailImageUrl: String? = null,
-        @ReadOnly var largeImageUrl: String? = null,
-        @ReadOnly var iconImageUrl: String? = null,
-
         var hasOrganizerInfo: Boolean = false,
         var organizerName: String? = null,
         var organizerDescription: String? = null,
 
         var isMapShown: Boolean = false,
-
         var isSponsorsEnabled: Boolean = false,
         var isSessionsSpeakersEnabled: Boolean = false,
-        var privacy: String? = "public",
-        var state: EventState? = EventState.draft,
-        var ticketUrl: String? = null,
+        @Url var ticketUrl: String? = null,
         var codeOfConduct: String? = null,
 
         var isTicketingEnabled: Boolean = true,
         var isTaxEnabled: Boolean = false,
         var paymentCountry: String? = null,
         var paymentCurrency: String? = null,
-        var paypalEmail: String? = null,
+        @Email var paypalEmail: String? = null,
         var canPayByPaypal: Boolean = false,
         var canPayByStripe: Boolean = false,
         var canPayByCheque: Boolean = false,
@@ -67,9 +59,5 @@ data class Event(
         var canPayOnsite: Boolean = false,
         var chequeDetails: String? = null,
         var bankDetails: String? = null,
-        var onsiteDetails: String? = null,
-
-        @ReadOnly var pentabarfUrl: String? = null,
-        @ReadOnly var icalUrl: String? = null,
-        @ReadOnly var xcalUrl: String? = null
+        var onsiteDetails: String? = null
 )
