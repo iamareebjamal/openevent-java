@@ -1,4 +1,4 @@
-package api.openevent.codegen
+package api.openevent.codegen.schema
 
 import api.openevent.annotations.Schema
 import api.openevent.annotations.contraints.Required
@@ -8,9 +8,13 @@ import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
+import javax.lang.model.element.VariableElement
+import javax.lang.model.util.ElementFilter
 
-internal abstract class DataClassGenerator(private val element: Element, private val processingEnv: ProcessingEnvironment, private val mutable: Boolean = false) {
+internal abstract class DataClassGenerator(
+        private val element: Element,
+        private val processingEnv: ProcessingEnvironment
+) {
 
     val name: String by lazy {
         element.simpleName.toString()
@@ -26,17 +30,15 @@ internal abstract class DataClassGenerator(private val element: Element, private
         }
     }
 
-    private val properties: List<Element> by lazy {
-        element.enclosedElements.filter {
-            it.kind == ElementKind.FIELD
-        }
+    private val properties: List<VariableElement> by lazy {
+        ElementFilter.fieldsIn(element.enclosedElements)
     }
 
-    val generatedProperties: List<Element> by lazy {
+    val generatedProperties: List<VariableElement> by lazy {
         filterProperties(properties)
     }
 
-    abstract fun filterProperties(properties: List<Element>): List<Element>
+    abstract fun filterProperties(properties: List<VariableElement>): List<VariableElement>
 
     fun generateClass(): String {
         val typeSpec = TypeSpec.classBuilder(fileName)
@@ -64,12 +66,16 @@ internal abstract class DataClassGenerator(private val element: Element, private
                 .toString()
     }
 
-    abstract inner class PropertyGenerator(private val element: Element) {
+    abstract inner class PropertyGenerator(private val element: VariableElement) {
 
         private val elementName = element.simpleName.toString()
 
-        val idField = element.getAnnotation(Id::class.java) != null
-        val requiredField = element.getAnnotation(Required::class.java) != null
+        val idField: Boolean by lazy {
+            element.getAnnotation(Id::class.java) != null
+        }
+        val requiredField: Boolean by lazy {
+            element.getAnnotation(Required::class.java) != null
+        }
 
         abstract val isMutable: Boolean
         abstract val isNullable: Boolean
@@ -101,36 +107,9 @@ internal abstract class DataClassGenerator(private val element: Element, private
 
     }
 
-    abstract fun getPropertyGenerator(element: Element): PropertyGenerator
+    abstract fun getPropertyGenerator(element: VariableElement): PropertyGenerator
 
-    private fun createParamAndProperty(element: Element): Pair<ParameterSpec.Builder, PropertySpec.Builder> {
-        /*val elementName = element.simpleName.toString()
-
-        val idField = element.getAnnotation(Id::class.java) != null
-        val requiredField = element.getAnnotation(Required::class.java) != null
-
-        val type = element.asType()
-                .asTypeName()
-                .run { if (requiredField || (!mutable && idField)) this else this.asNullable() }
-
-        val annotations = element.annotationMirrors.filter {
-            it.annotationType.toString() != Nullable::class.java.name
-        }.filter {
-            it.annotationType.toString() != Required::class.java.name
-        }.map {
-            AnnotationSpec.Companion.get(it)
-        }
-
-        val parameterSpec = ParameterSpec.builder(elementName, type)
-                .run { if (requiredField || !mutable) this else this.defaultValue("null") }
-
-        val propertySpec = PropertySpec.builder(elementName, type)
-                .initializer(elementName)
-                .mutable(mutable && !idField)
-                .addAnnotations(annotations)
-
-        return Pair(parameterSpec, propertySpec)*/
-
+    private fun createParamAndProperty(element: VariableElement): Pair<ParameterSpec.Builder, PropertySpec.Builder> {
         return getPropertyGenerator(element).generate()
     }
 }

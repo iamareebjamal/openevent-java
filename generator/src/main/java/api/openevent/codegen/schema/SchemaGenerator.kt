@@ -1,12 +1,13 @@
-package api.openevent.codegen
+package api.openevent.codegen.schema
 
 import com.github.jasminb.jsonapi.annotations.Type
-import com.squareup.kotlinpoet.*
-import org.jetbrains.annotations.Nullable
+import jdk.nashorn.internal.objects.NativeArray.forEach
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.VariableElement
+import javax.lang.model.util.ElementFilter
 import javax.tools.Diagnostic
 
 internal class SchemaGenerator(private val element: Element, private val processingEnv: ProcessingEnvironment) {
@@ -18,14 +19,22 @@ internal class SchemaGenerator(private val element: Element, private val process
 
         printNote("Validating ${element.simpleName}")
 
-        if (element.kind != ElementKind.CLASS) {
-            printWarning("Element $element is not a class")
+        val constructor = ElementFilter.constructorsIn(element.enclosedElements).find {
+            it.parameters.isEmpty()
+        }
+
+        if (constructor == null) {
+            printWarning("Class $element should have a visible default constructor")
             validated = false
         }
 
         if (element.getAnnotation(Type::class.java) == null) {
-            printWarning("Element $element should have @${Type::class.java.name} annotation")
+            printWarning("Class $element should have @${Type::class.java.name} annotation")
             validated = false
+        }
+
+        ElementFilter.fieldsIn(element.enclosedElements).forEach {
+            printNote("$it ${it.kind} ${it.constantValue}")
         }
 
         this.validated = validated

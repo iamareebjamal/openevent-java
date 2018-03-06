@@ -1,8 +1,9 @@
-package api.openevent.codegen
+package api.openevent.codegen.schema
 
 import api.openevent.annotations.WriteOnly
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
+import javax.lang.model.element.VariableElement
 
 internal class ImmutableClassGenerator(
         element: Element,
@@ -12,13 +13,13 @@ internal class ImmutableClassGenerator(
     override val fileName: String
         get() = name.removeSuffix("Schema")
 
-    override fun filterProperties(properties: List<Element>): List<Element> {
+    override fun filterProperties(properties: List<VariableElement>): List<VariableElement> {
         return properties.filter {
             it.getAnnotation(WriteOnly::class.java) == null
         }
     }
 
-    override fun getPropertyGenerator(element: Element): PropertyGenerator {
+    override fun getPropertyGenerator(element: VariableElement): PropertyGenerator {
         return object : PropertyGenerator(element) {
             override val isMutable: Boolean
                 get() = false
