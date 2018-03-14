@@ -20,6 +20,10 @@ internal abstract class DataClassGenerator(
         element.simpleName.toString()
     }
 
+    val packageName by lazy {
+        processingEnv.elementUtils.getPackageOf(element).toString()
+    }
+
     abstract val fileName: String
 
     private val classAnnotations: List<AnnotationMirror> by lazy {
@@ -57,13 +61,18 @@ internal abstract class DataClassGenerator(
             typeSpec.addProperty(propertySpec.build())
         }
 
-        return FileSpec.builder(processingEnv.elementUtils.getPackageOf(element).toString(), fileName)
-                .addType(typeSpec
-                        .addModifiers(KModifier.DATA)
-                        .primaryConstructor(constructor.build())
-                        .build())
+        val typeSpecBuilder = typeSpec
+                .addModifiers(KModifier.DATA)
+                .primaryConstructor(constructor.build())
+        addExtra(typeSpecBuilder)
+        return FileSpec.builder(packageName, fileName)
+                .addType(typeSpecBuilder.build())
                 .build()
                 .toString()
+    }
+
+    protected open fun addExtra(specBuilder: TypeSpec.Builder) {
+        // Nothing
     }
 
     abstract inner class PropertyGenerator(private val element: VariableElement) {

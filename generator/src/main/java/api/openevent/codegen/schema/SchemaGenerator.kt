@@ -63,7 +63,7 @@ internal class SchemaGenerator(private val element: Element, private val process
 
         printNote("$properties")
 
-        val immutableClassGenerator = ImmutableClassGenerator(element, processingEnv)
+        val immutableClassGenerator = ImmutableClassGenerator(element, processingEnv, properties)
         printNote("Generating Immutable Class for ${immutableClassGenerator.name} : ${immutableClassGenerator.fileName}")
         printNote(immutableClassGenerator.generateClass())
     }
