@@ -34,19 +34,18 @@ internal class ImmutableClassGenerator(
     }
 
     private fun getFunctionBody(): String {
-        val propertiesBody = StringBuilder()
-
-        for (property in mutableProperties) {
+        val propertiesBody = mutableProperties.joinToString(",\n") { property ->
             val localProperty = if (property.getAnnotation(WriteOnly::class.java) != null)
                 "null"
             else
                 property.toString()
-            propertiesBody.append("\t$property = $localProperty\n")
+
+            "\t\t$property = $localProperty"
         }
 
-        return "return $mutableClassName(\n" +
-                propertiesBody +
-                ")\n"
+        return """|return $mutableClassName(
+            |$propertiesBody)
+            |""".trimMargin()
     }
 
     override fun getPropertyGenerator(element: VariableElement): PropertyGenerator {

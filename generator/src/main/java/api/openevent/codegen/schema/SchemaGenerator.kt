@@ -2,6 +2,7 @@ package api.openevent.codegen.schema
 
 import com.github.jasminb.jsonapi.annotations.Type
 import jdk.nashorn.internal.objects.NativeArray.forEach
+import java.io.File
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
@@ -57,7 +58,10 @@ internal class SchemaGenerator(private val element: Element, private val process
     fun generate() {
         val mutableClassGenerator = MutableClassGenerator(element, processingEnv)
         printNote("Generating Immutable Class for ${mutableClassGenerator.name} : ${mutableClassGenerator.fileName}")
-        printNote(mutableClassGenerator.generateClass())
+
+        val dir = processingEnv.options["kapt.kotlin.generated"]
+
+        mutableClassGenerator.generateClass().writeTo(File(dir))
 
         val properties = mutableClassGenerator.generatedProperties
 
@@ -65,7 +69,8 @@ internal class SchemaGenerator(private val element: Element, private val process
 
         val immutableClassGenerator = ImmutableClassGenerator(element, processingEnv, properties)
         printNote("Generating Immutable Class for ${immutableClassGenerator.name} : ${immutableClassGenerator.fileName}")
-        printNote(immutableClassGenerator.generateClass())
+
+        immutableClassGenerator.generateClass().writeTo(File(dir))
     }
 
 }

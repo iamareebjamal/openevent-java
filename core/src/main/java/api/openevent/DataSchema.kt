@@ -18,7 +18,7 @@ data class DataSchema(
         var id: Int? = null,
         @Required var name: String? = null,
         var age: Int? = null,
-        @Required @WriteOnly var password: String? = null,
+        @WriteOnly var password: String? = null,
         @field:Url var testUrl: String?=  "Poop",
         @field:Email var email: String? = null,
         var isPooped: Boolean? = false,

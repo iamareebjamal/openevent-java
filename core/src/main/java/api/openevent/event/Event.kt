@@ -1,5 +1,6 @@
 package api.openevent.event
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.github.jasminb.jsonapi.IntegerIdHandler
@@ -7,6 +8,7 @@ import com.github.jasminb.jsonapi.annotations.Id
 import com.github.jasminb.jsonapi.annotations.Type
 
 @Type("event")
+@JsonIgnoreProperties
 @JsonNaming(PropertyNamingStrategy.KebabCaseStrategy::class)
 data class Event(
         @Id(IntegerIdHandler::class)
@@ -45,7 +47,7 @@ data class Event(
         val isMapShown: Boolean = false,
         val isSponsorsEnabled: Boolean = false,
         val isSessionsSpeakersEnabled: Boolean = false,
-        val ticketUrl: String,
+        val ticketUrl: String?,
         val codeOfConduct: String?,
 
         val isTicketingEnabled: Boolean = true,

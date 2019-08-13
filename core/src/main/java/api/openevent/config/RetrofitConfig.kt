@@ -3,6 +3,7 @@ package api.openevent.config
 import api.openevent.event.Event
 import api.openevent.user.MutableUser
 import api.openevent.user.User
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.jasminb.jsonapi.retrofit.JSONAPIConverterFactory
@@ -17,11 +18,12 @@ import okhttp3.Interceptor
 class RetrofitConfig(private val debug: Boolean = false) {
 
     companion object {
-        private const val defaultBaseUrl = "http://localhost:5000/v1/"
+        private const val defaultBaseUrl = "https://open-event-api-dev.herokuapp.com/v1/"
     }
 
     private val objectMapper: ObjectMapper by lazy {
         jacksonObjectMapper()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     }
 
     private val loggingInterceptor: Interceptor by lazy {

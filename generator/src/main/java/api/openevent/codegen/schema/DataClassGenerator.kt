@@ -10,6 +10,9 @@ import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
 import javax.lang.model.element.VariableElement
 import javax.lang.model.util.ElementFilter
+import kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap
+import kotlin.reflect.jvm.internal.impl.name.FqName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 internal abstract class DataClassGenerator(
         private val element: Element,
@@ -44,11 +47,11 @@ internal abstract class DataClassGenerator(
 
     abstract fun filterProperties(properties: List<VariableElement>): List<VariableElement>
 
-    fun generateClass(): String {
+    fun generateClass(): FileSpec {
         val typeSpec = TypeSpec.classBuilder(fileName)
 
         typeSpec.addAnnotations(classAnnotations.map {
-            AnnotationSpec.Companion.get(it)
+            AnnotationSpec.get(it)
         })
 
         val constructor = FunSpec.constructorBuilder()
@@ -68,7 +71,6 @@ internal abstract class DataClassGenerator(
         return FileSpec.builder(packageName, fileName)
                 .addType(typeSpecBuilder.build())
                 .build()
-                .toString()
     }
 
     protected open fun addExtra(specBuilder: TypeSpec.Builder) {
@@ -90,10 +92,30 @@ internal abstract class DataClassGenerator(
         abstract val isNullable: Boolean
         abstract val hasDefaultValue: Boolean
 
+        fun Element.javaToKotlinType(): TypeName =
+                asType().asTypeName().javaToKotlinType()
+
+        private fun TypeName.javaToKotlinType(): TypeName {
+            return if (this is ParameterizedTypeName) {
+                (rawType.javaToKotlinType() as ClassName)
+                        .parameterizedBy(*typeArguments.map { it.javaToKotlinType() }.toTypedArray())
+            } else {
+                val className = JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(toString()))
+                                ?.asSingleFqName()?.asString()
+
+                return if (className == null) {
+                    this
+                } else {
+                    ClassName.bestGuess(className)
+                }
+            }
+        }
+
         fun generate(): Pair<ParameterSpec.Builder, PropertySpec.Builder> {
             val type = element.asType()
                     .asTypeName()
-                    .run { if (isNullable) this.asNullable() else this }
+                    .javaToKotlinType()
+                    .run { if (this@PropertyGenerator.isNullable) this.copy(nullable = true) else this }
 
             val annotations = element.annotationMirrors.filter {
                 it.annotationType.toString() != Nullable::class.java.name
